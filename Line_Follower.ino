@@ -1,12 +1,12 @@
 #include <QTRSensors.h>
 
-#define leftMotor1 2
-#define leftMotor2 4
-#define leftMotorPWM  3
+#define leftMotor1 0
+#define leftMotor2 1
+#define leftMotorPWM  5
 
-#define rightMotor1 0
-#define rightMotor2 1
-#define rightMotorPWM  5
+#define rightMotor1 2
+#define rightMotor2 4
+#define rightMotorPWM  3
 
 #define SEN_1 6
 #define SEN_2 7
