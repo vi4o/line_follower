@@ -20,9 +20,9 @@
 #define BUTTON 2
 #define BTN_THRES 800// >75% of 1023
 
-#define Kp 0.065 // experiment to determine this, start by something small that just makes your bot follow the line at a slow speed
-#define Kd 0.65 // experiment to determine this, slowly increase the speeds and adjust this value. (Note: Kp < Kd)
-#define Ki 0.015
+#define Kp 0.04 // experiment to determine this, start by something small that just makes your bot follow the line at a slow speed
+#define Kd 0.3 // experiment to determine this, slowly increase the speeds and adjust this value. (Note: Kp < Kd)
+#define Ki 0
 #define rightMaxSpeed 180 // max speed of the robot
 #define leftMaxSpeed 180 // max speed of the robot
 
