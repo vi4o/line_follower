@@ -20,20 +20,20 @@
 #define BUTTON 2
 #define BTN_THRES 800// >75% of 1023
 
-#define Kp 0.04 // experiment to determine this, start by something small that just makes your bot follow the line at a slow speed
-#define Kd 0.3 // experiment to determine this, slowly increase the speeds and adjust this value. (Note: Kp < Kd)
+#define Kp 0.07 // experiment to determine this, start by something small that just makes your bot follow the line at a slow speed
+#define Kd 0.4  // experiment to determine this, slowly increase the speeds and adjust this value. (Note: Kp < Kd)
 #define Ki 0
-#define rightMaxSpeed 180 // max speed of the robot
-#define leftMaxSpeed 180 // max speed of the robot
+#define rightMaxSpeed 200 // max speed of the robot
+#define leftMaxSpeed 200 // max speed of the robot
 
-#define rightBaseSpeed 120 // this is the speed at which the motors should spin when the robot is perfectly on the line
-#define leftBaseSpeed 120  // this is the speed at which the motors should spin when the robot is perfectly on the line
+#define rightBaseSpeed 140 // this is the speed at which the motors should spin when the robot is perfectly on the line
+#define leftBaseSpeed 140  // this is the speed at which the motors should spin when the robot is perfectly on the line
 #define NUM_SENSORS  8     // number of sensors used
 #define TIMEOUT       2500  // waits for 2500 us for sensor outputs to go low
 #define EMITTER_PIN   255     // emitter is controlled by digital pin 2
 
-#define MOTOR_STEPS 4
-#define STEP_THRESHOLD 100
+#define MOTOR_STEPS 2
+#define STEP_THRESHOLD 10000
 inline void drive(int leftMotorPin, int rightMotorPin,
                   int leftIntensity, int rightIntensity,
                   int *lastLeftIntensity, int *lastRightIntensity) {
@@ -64,6 +64,7 @@ inline void drive(int leftMotorPin, int rightMotorPin,
 void driveMotors(int leftIntensity, int rightIntensity, int *lastLeftIntensity, int *lastRightIntensity) {
   int leftDirection = (leftIntensity >= 0) ? 1 : -1;
   int rightDirection = (rightIntensity >= 0) ? 1 : -1;
+  leftIntensity *= 0.85;
   if (leftDirection >= 0) {
     digitalWrite(leftMotor1, LOW);
     digitalWrite(leftMotor2, HIGH);
@@ -87,18 +88,51 @@ QTRSensorsRC qtrrc((unsigned char[]) {
   SEN_1, SEN_2, SEN_3, SEN_4, SEN_5, SEN_6, SEN_7, SEN_8
 } , NUM_SENSORS, TIMEOUT, EMITTER_PIN); // sensor connected through analog pins A0 - A5 i.e. digital pins 14-19
 
+void turn_to_calibrate(int milliseconds) {
+  int leftCalSpeed = 20;
+  int rightCalSpeed = 28;
+  int fakeLeft, fakeRight;
+  int delayMillis = milliseconds / 4;
+
+  // we collect 80 samples - left, right, right, left
+  driveMotors(leftCalSpeed, -rightCalSpeed, &fakeLeft, &fakeRight);
+  for (int i = 0; i < 20; i++) {
+    qtrrc.calibrate();
+    delay(delayMillis/20);
+  }
+
+  driveMotors(-leftCalSpeed, rightCalSpeed, &fakeLeft, &fakeRight);
+  for (int i = 0; i < 40; i++) {
+    qtrrc.calibrate();
+    delay(delayMillis/20);
+  }
+
+  driveMotors(leftCalSpeed, -rightCalSpeed, &fakeLeft, &fakeRight);
+  for (int i = 0; i < 20; i++) {
+    qtrrc.calibrate();
+    delay(delayMillis/20);
+  }
+  driveMotors(0, 0, &fakeLeft, &fakeRight);
+}
+
 void setup() {
   pinMode(rightMotor1, OUTPUT);
   pinMode(rightMotor2, OUTPUT);
   pinMode(rightMotorPWM, OUTPUT);
   pinMode(leftMotor1, OUTPUT);
   pinMode(leftMotor2, OUTPUT);
+  pinMode(leftMotorPWM, OUTPUT);
 
-  int i;
+  /*int i;
   for (int i = 0; i < 100; i++) {
     qtrrc.calibrate();
     delay(20);
+  }*/
+  while (analogRead(BUTTON) < BTN_THRES) {
+    delay(500);
   }
+  delay(1000);
+  turn_to_calibrate(300);
   while (analogRead(BUTTON) < BTN_THRES) {
     delay(500);
   }
